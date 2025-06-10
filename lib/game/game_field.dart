@@ -5,6 +5,12 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
+enum HammerType {
+  none,
+  singleTile,
+  fullRow,
+}
+
 class GameField extends FlameGame with DragCallbacks, TapCallbacks {
   GameField({required this.level});
 
@@ -25,7 +31,7 @@ class GameField extends FlameGame with DragCallbacks, TapCallbacks {
   final double titleBackgroundVerticalPadding = 10.0;
 
   int shiftCounter = 0;
-  bool isHammerMode = false;
+  HammerType selectedHammerType = HammerType.none;
 
   @override
   Future<void> onLoad() async {
@@ -71,7 +77,6 @@ class GameField extends FlameGame with DragCallbacks, TapCallbacks {
     add(levelTitleComponent);
 
     renderGrid();
-    await add(HammerComponent());
   }
 
   Future<void> loadLevelData() async {
@@ -208,11 +213,33 @@ class GameField extends FlameGame with DragCallbacks, TapCallbacks {
   void onTapDown(TapDownEvent event) {
     final tile = tileAtPosition(event.canvasPosition);
     if (tile != null) {
-      if (isHammerMode) {
-        grid[tile.row][tile.col] = '';
-        tile.removeFromParent();
-        tiles.remove(tile);
-        checkAndShiftGridDown();
+      if (selectedHammerType != HammerType.none) {
+        switch (selectedHammerType) {
+          case HammerType.singleTile:
+            grid[tile.row][tile.col] = '';
+            tile.removeFromParent();
+            tiles.remove(tile);
+            checkAndShiftGridDown();
+            break;
+
+          case HammerType.fullRow:
+            for (int col = 0; col < grid[0].length; col++) {
+              grid[tile.row][col] = '';
+            }
+            tiles.removeWhere((t) {
+              if (t.row == tile.row) {
+                t.removeFromParent();
+                return true;
+              }
+              return false;
+            });
+            checkAndShiftGridDown();
+            break;
+
+          case HammerType.none:
+            // No-op
+            break;
+        }
       }
     }
   }
@@ -342,50 +369,5 @@ class BackgroundComponent extends Component with HasGameRef<GameField> {
       Rect.fromLTWH(0, 0, game.size.x, game.size.y),
       Paint()..color = const Color(0xFF222831),
     );
-  }
-}
-
-class HammerComponent extends TextComponent
-    with DragCallbacks, HasGameRef<GameField> {
-  HammerComponent()
-      : super(
-          text: '🔨',
-          textRenderer: TextPaint(
-            style: const TextStyle(
-              fontSize: 32,
-              color: Colors.white,
-            ),
-          ),
-        );
-
-  late Vector2 initialPosition;
-
-  @override
-  Future<void> onLoad() async {
-    const double hammerDistanceFromBottom = 90.0;
-    final double hammerX = gameRef.size.x / 1.125;
-    final double hammerY = gameRef.size.y - hammerDistanceFromBottom - size.y;
-    initialPosition = Vector2(hammerX, hammerY);
-    position = initialPosition.clone();
-    priority = 100;
-  }
-
-  @override
-  void onDragUpdate(DragUpdateEvent event) {
-    super.onDragUpdate(event);
-    position += event.localDelta;
-  }
-
-  @override
-  void onDragEnd(DragEndEvent event) {
-    super.onDragEnd(event);
-    final tile = gameRef.tileAtPosition(position);
-    if (tile != null) {
-      gameRef.grid[tile.row][tile.col] = '';
-      tile.removeFromParent();
-      gameRef.tiles.remove(tile);
-      gameRef.checkAndShiftGridDown();
-    }
-    position = initialPosition.clone();
   }
 }

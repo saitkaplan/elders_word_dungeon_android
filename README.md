@@ -23,7 +23,7 @@ Follow these steps to set up and run this project on your local machine:
 
 2.  **Cloning the Repository:**
     ```bash
-    git clone [HTTPS Link](https://github.com/saitkaplan/elders_word_dungeon_android.git)
+    git clone https://github.com/saitkaplan/elders_word_dungeon_android.git
     cd elders_word_dungeon_android
     ```
 
@@ -38,6 +38,8 @@ Follow these steps to set up and run this project on your local machine:
         ```bash
         flutter run
         ```
+
+> *Note: If you want to support the project with a branch, please read the IMPORTANT WARNING in the .gitignore file.*
 
 ## 🤝 Contributors and Support
 
