@@ -28,7 +28,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# IMPORTANT WARNING FOR THIS .gitignore FILE CONTENT
+# Flutter DevTools specific options
+devtools_options.yaml
+
+# IMPORTANT WARNING FOR THIS .gitignore CONTENT
 # I use a global.gitignore file in addition to the .gitignore files in the project.
 # This file is an ignore file for all projects in my computer.
 # Before publishing the project to GitHub, add the following lines to this file;

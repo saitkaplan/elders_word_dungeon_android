@@ -9,71 +9,59 @@ enum HammerType {
   none,
   singleTile,
   fullRow,
+  fullColumn,
 }
 
 class GameField extends FlameGame with DragCallbacks, TapCallbacks {
   GameField({required this.level});
 
   final int level;
-  late List<List<String>> grid;
-  final double tileSize = 65.0;
-  final double spacing = 6.5;
   final List<GridTile> tiles = [];
   final List<GridTile> selectedTiles = [];
+
   List<Word> validWords = [];
+
+  late List<List<String>> grid;
+  late double tileSize;
+  late double spacing;
   late String levelName;
   late TextComponent levelTitleComponent;
-
-  final double bottomGridPadding = 80.0;
-  final double topTitlePadding = 40.0;
-  final double spacingAfterTitle = 30.0;
-  final double titleBackgroundHorizontalPadding = 20.0;
-  final double titleBackgroundVerticalPadding = 10.0;
 
   int shiftCounter = 0;
   HammerType selectedHammerType = HammerType.none;
 
   @override
   Future<void> onLoad() async {
+    double titleTopPadding = size.y * 0.025;
+    double titleBottomPadding = size.y * 0.025;
     camera.viewfinder.position = Vector2(size.x / 2, size.y / 2);
     await loadLevelData();
-
-    // Priority Sıralaması:
-    // 1. BackgroundComponent: -100 (En arkada)
-    // 2. Grid Arkaplanı (blueGrey): -90 (BackgroundComponent'ın önünde)
-    // 3. Alt Satır Vurgusu (red): -80 (Grid Arkaplanının önünde)
-    // 4. GridTile'lar (ve içindeki yeşil çerçeveler): -70 (Alt Satır Vurgusunun önünde)
-    // 5. Level Arkaplanı (black): -60 (GridTile'ların önünde)
-    // 6. Level Adı (levelTitleComponent): -55 (Level Arkaplanının önünde)
-    // 7. HammerComponent: 100 (En önde)
-
     add(BackgroundComponent());
 
+    // Level adı tasarımı
     levelTitleComponent = TextComponent(
       text: levelName,
       anchor: Anchor.topCenter,
-      position: Vector2(size.x / 2, topTitlePadding),
+      position: Vector2(size.x / 2, titleTopPadding),
       textRenderer: TextPaint(
-        style: const TextStyle(
-          fontSize: 40,
+        style: TextStyle(
+          fontSize: size.x * 0.075,
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
       ),
       priority: -55,
     );
-
     final double bgHeight = levelTitleComponent.position.y +
         levelTitleComponent.height +
-        titleBackgroundVerticalPadding;
-
+        titleBottomPadding;
+    // Level adı arkaplan rengi
     add(RectangleComponent(
       position: Vector2(0, 0),
       size: Vector2(size.x, bgHeight),
-      paint: Paint()..color = Colors.black,
+      paint: Paint()..color = Colors.blueGrey.shade900,
       priority: -60,
     ));
-
     add(levelTitleComponent);
 
     renderGrid();
@@ -92,53 +80,63 @@ class GameField extends FlameGame with DragCallbacks, TapCallbacks {
     levelName = jsonData['name'];
   }
 
+  // Grid Sistemi Genel Tasarımı
   void renderGrid() {
-    final int rows = grid.length;
-    final int columns = grid[0].length;
-    final double totalGridWidth = columns * tileSize + (columns - 1) * spacing;
-    final double totalGridHeight = rows * tileSize + (rows - 1) * spacing;
-    final double startX = (size.x - totalGridWidth) / 2;
-    final double startY = size.y - totalGridHeight - bottomGridPadding;
+    final double bottomGridPadding = size.y * 0.1;
+    spacing = size.x * 0.015;
 
-    for (int row = 0; row < rows; row++) {
-      for (int col = 0; col < columns; col++) {
+    final int rowCount = grid.length;
+    final int colCount = grid[0].length;
+
+    final double gridMaxWidth = size.x * 0.8;
+    tileSize = (gridMaxWidth - (spacing * (colCount - 1))) / colCount;
+
+    tiles.clear();
+
+    final double gridWidth = colCount * tileSize + (colCount - 1) * spacing;
+    final double gridHeight = rowCount * tileSize + (rowCount - 1) * spacing;
+
+    final Vector2 startPosition = Vector2(
+      (size.x - gridWidth) / 2,
+      size.y - gridHeight - bottomGridPadding,
+    );
+
+    for (int row = 0; row < rowCount; row++) {
+      for (int col = 0; col < colCount; col++) {
         final String letter = grid[row][col];
-        final double x = startX + col * (tileSize + spacing);
-        final double y = startY + row * (tileSize + spacing);
+
+        final Vector2 tilePosition = Vector2(
+          startPosition.x + col * (tileSize + spacing),
+          startPosition.y + row * (tileSize + spacing),
+        );
+
         final tile = GridTile(
-          letter: letter,
           row: row,
           col: col,
-          size: Vector2(tileSize, tileSize),
-          position: Vector2(x, y),
+          letter: letter,
+          size: Vector2.all(tileSize),
+          position: tilePosition,
         );
+
         tiles.add(tile);
         add(tile);
       }
     }
 
-    // Grid Arkaplan rengi
+    // Grid Arkaplan
     add(RectangleComponent(
-      position: Vector2(startX - 6, startY - 6),
-      size: Vector2(
-        columns * tileSize + (columns - 1) * spacing + 12,
-        rows * tileSize + (rows - 1) * spacing + 12,
-      ),
-      paint: Paint()..color = Colors.blueGrey.withOpacity(0.4),
+      position: startPosition - Vector2.all(4),
+      size: Vector2(gridWidth, gridHeight) + Vector2.all(8),
+      paint: Paint()..color = Colors.grey.shade900.withOpacity(0.5),
       priority: -90,
     ));
 
-    // Alt satır rengi
+    // Grid Alt Satır Vurgusu
+    final bottomLineY = startPosition.y + (rowCount - 1) * (tileSize + spacing);
     add(RectangleComponent(
-      position: Vector2(
-        startX - 4,
-        startY + (rows - 1) * (tileSize + spacing) - 4,
-      ),
-      size: Vector2(
-        columns * tileSize + (columns - 1) * spacing + 8,
-        tileSize + 8,
-      ),
-      paint: Paint()..color = Colors.red.withOpacity(0.4),
+      position: Vector2(startPosition.x, bottomLineY),
+      size: Vector2(gridWidth, tileSize),
+      paint: Paint()..color = Colors.red.withOpacity(0.2),
       priority: -80,
     ));
   }
@@ -212,39 +210,52 @@ class GameField extends FlameGame with DragCallbacks, TapCallbacks {
   @override
   void onTapDown(TapDownEvent event) {
     final tile = tileAtPosition(event.canvasPosition);
-    if (tile != null) {
-      if (selectedHammerType != HammerType.none) {
-        switch (selectedHammerType) {
-          case HammerType.singleTile:
-            grid[tile.row][tile.col] = '';
-            tile.removeFromParent();
-            tiles.remove(tile);
-            checkAndShiftGridDown();
-            break;
+    if (tile != null && selectedHammerType != HammerType.none) {
+      switch (selectedHammerType) {
+        case HammerType.singleTile:
+          grid[tile.row][tile.col] = '';
+          tile.removeFromParent();
+          tiles.remove(tile);
+          checkAndShiftGridDown();
+          break;
 
-          case HammerType.fullRow:
-            for (int col = 0; col < grid[0].length; col++) {
-              grid[tile.row][col] = '';
+        case HammerType.fullRow:
+          for (int col = 0; col < grid[0].length; col++) {
+            grid[tile.row][col] = '';
+          }
+          tiles.removeWhere((t) {
+            if (t.row == tile.row) {
+              t.removeFromParent();
+              return true;
             }
-            tiles.removeWhere((t) {
-              if (t.row == tile.row) {
-                t.removeFromParent();
-                return true;
-              }
-              return false;
-            });
-            checkAndShiftGridDown();
-            break;
+            return false;
+          });
+          checkAndShiftGridDown();
+          break;
 
-          case HammerType.none:
-            // No-op
-            break;
-        }
+        case HammerType.fullColumn:
+          for (int row = 0; row < grid.length; row++) {
+            grid[row][tile.col] = '';
+          }
+          tiles.removeWhere((t) {
+            if (t.col == tile.col) {
+              t.removeFromParent();
+              return true;
+            }
+            return false;
+          });
+          checkAndShiftGridDown();
+          break;
+
+        case HammerType.none:
+          // No-op
+          break;
       }
     }
   }
 
   void checkAndShiftGridDown() {
+    spacing = size.x * 0.015;
     final int rows = grid.length;
     final int columns = grid[0].length;
     bool shifted = false;
@@ -274,6 +285,7 @@ class GameField extends FlameGame with DragCallbacks, TapCallbacks {
   }
 }
 
+// Grid Sistemi İç Harf ve Tasarım Mekanikleri
 class GridTile extends PositionComponent {
   final String letter;
   int row;
@@ -297,8 +309,8 @@ class GridTile extends PositionComponent {
       anchor: Anchor.center,
       position: size / 2,
       textRenderer: TextPaint(
-        style: const TextStyle(
-          fontSize: 30,
+        style: TextStyle(
+          fontSize: size.x * 0.5,
           color: Colors.white,
         ),
       ),
@@ -316,9 +328,9 @@ class GridTile extends PositionComponent {
   void deselect() {
     isSelected = false;
     label.textRenderer = TextPaint(
-      style: const TextStyle(
-        fontSize: 30,
-        color: Colors.white,
+      style: TextStyle(
+        fontSize: size.x * 0.5,
+        color: Colors.white60,
       ),
     );
   }
@@ -326,9 +338,9 @@ class GridTile extends PositionComponent {
   void select() {
     isSelected = true;
     label.textRenderer = TextPaint(
-      style: const TextStyle(
-        fontSize: 30,
-        color: Colors.red,
+      style: TextStyle(
+        fontSize: size.x * 0.6,
+        color: Colors.red.shade400,
       ),
     );
   }
@@ -342,6 +354,7 @@ class GridTile extends PositionComponent {
   }
 }
 
+// .json Dosyaları Metrik Değer Yönetimi
 class Word {
   final String id;
   final List<List<int>> path;
@@ -358,7 +371,7 @@ class Word {
   }
 }
 
-// Arkaplan rengi
+// Oyun Alanı Arkaplan Tasarımı
 class BackgroundComponent extends Component with HasGameRef<GameField> {
   @override
   int priority = -100;

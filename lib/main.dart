@@ -1,16 +1,20 @@
 import 'package:elders_word_dungeon_android/pages/home_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+Future<void> main() async {
   // Temel yükleme ve ayarların alınması
   WidgetsFlutterBinding.ensureInitialized();
+  // .env dosyasının alınması
+  await dotenv.load(fileName: ".env");
   // Reklam işlemlerinin uygulamaya yüklenmesi
-  // MobileAds.instance.initialize();
+  MobileAds.instance.initialize();
   // Durum çubuğunu şeffaf ve beyaz temaya dönüşmesi
   SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
+    SystemUiOverlayStyle(
+      statusBarColor: Colors.blueGrey.shade900,
       statusBarIconBrightness: Brightness.light,
     ),
   );

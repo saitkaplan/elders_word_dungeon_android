@@ -34,21 +34,22 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.elder_root.elders_word_dungeon_android"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
+        multiDexEnabled true
+        resValue "string", "admob_app_id", project.findProperty("ADMOB_APP_ID") ?: "ca-app-pub-3940256099942544~3347511713"
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
+            resValue "string", "admob_app_id", project.findProperty("ADMOB_APP_ID_RELEASE") ?: "ca-app-pub-3940256099942544~3347511713"
+        }
+        debug {
+            resValue "string", "admob_app_id", project.findProperty("ADMOB_APP_ID_DEBUG") ?: "ca-app-pub-3940256099942544~3347511713"
         }
     }
 }
