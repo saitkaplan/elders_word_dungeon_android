@@ -114,7 +114,7 @@ class GoogleAds with ChangeNotifier {
     )..load();
   }
 
-  void disposeWarPageBannerAd() {
+  void disposeLevelPageBannerAd() {
     levelPageBannerAd?.dispose();
     levelPageBannerAd = null;
   }

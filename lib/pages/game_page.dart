@@ -8,9 +8,12 @@ import 'package:flutter/material.dart';
 
 class GamePage extends StatefulWidget {
   final int level;
+  final int earnedPoint;
+
   const GamePage({
     super.key,
     required this.level,
+    required this.earnedPoint,
   });
 
   @override
@@ -19,15 +22,104 @@ class GamePage extends StatefulWidget {
 
 class _GamePageState extends State<GamePage> {
   late GameField gameField;
+  late GoogleAds _googleAds;
+
   HammerType selectedHammerType = HammerType.none;
   bool isHammerMenuOpen = false;
-  late GoogleAds _googleAds;
 
   @override
   void initState() {
     _googleAds = GoogleAds();
     super.initState();
-    gameField = GameField(level: widget.level);
+    gameField = GameField(
+      level: widget.level,
+      earnedPoint: widget.earnedPoint,
+      onLevelComplete: () {
+        final double screenWidth = MediaQuery.of(context).size.width;
+        final double screenHeight = MediaQuery.of(context).size.height;
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => Dialog(
+            backgroundColor: Colors.transparent,
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    top: screenHeight * 0.06,
+                    bottom: screenHeight * 0.06,
+                    right: screenWidth * 0.08,
+                    left: screenWidth * 0.08,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Tebrikler!",
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.075,
+                          color: Colors.black,
+                        ),
+                        textAlign: TextAlign.center,
+                        textScaler: const TextScaler.linear(1),
+                      ),
+                      Text(
+                        "Bölüm ${widget.level} tamamlandı!\n"
+                        "Toplam Skorunuz: ${gameField.earnedPoint}",
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.04,
+                          color: Colors.black,
+                        ),
+                        textAlign: TextAlign.center,
+                        textScaler: const TextScaler.linear(1),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red.withOpacity(0.25),
+                          foregroundColor: Colors.black,
+                          shadowColor: Colors.black.withOpacity(0.2),
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          padding: EdgeInsets.only(
+                            top: screenHeight * 0.011,
+                            bottom: screenHeight * 0.011,
+                            left: screenWidth * 0.075,
+                            right: screenWidth * 0.075,
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          Navigator.pop(context, gameField.earnedPoint);
+                        },
+                        child: Text(
+                          'Bölümü Kapat',
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.05,
+                            color: Colors.black,
+                          ),
+                          textScaler: const TextScaler.linear(1),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
     gameField.selectedHammerType = selectedHammerType;
     loadAdData();
   }
@@ -233,7 +325,7 @@ class _GamePageState extends State<GamePage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _getActiveButtonColor(),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     padding: EdgeInsets.symmetric(
                       horizontal: screenWidth * 0.05,

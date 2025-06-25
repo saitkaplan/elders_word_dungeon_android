@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flame/events.dart';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
@@ -13,12 +14,18 @@ enum HammerType {
 }
 
 class GameField extends FlameGame with DragCallbacks, TapCallbacks {
-  GameField({required this.level});
-
   final int level;
+  int earnedPoint;
+  final VoidCallback onLevelComplete;
+
+  GameField({
+    required this.level,
+    required this.earnedPoint,
+    required this.onLevelComplete,
+  });
+
   final List<GridTile> tiles = [];
   final List<GridTile> selectedTiles = [];
-
   List<Word> validWords = [];
 
   late List<List<String>> grid;
@@ -26,19 +33,46 @@ class GameField extends FlameGame with DragCallbacks, TapCallbacks {
   late double spacing;
   late String levelName;
   late TextComponent levelTitleComponent;
+  late final ScoreManager scoreManager;
 
   int shiftCounter = 0;
   HammerType selectedHammerType = HammerType.none;
 
+  // Flame yapılarının ilk kez çağrıldığı fonksiyon
   @override
   Future<void> onLoad() async {
-    double titleTopPadding = size.y * 0.025;
-    double titleBottomPadding = size.y * 0.025;
-    camera.viewfinder.position = Vector2(size.x / 2, size.y / 2);
+    // Genel yüklemeler
+    await initialize();
+    // Level data yüklemesi
     await loadLevelData();
-    add(BackgroundComponent());
+    // UI componentlerinin yüklenmesi
+    setupUI();
+    // Grid alanının çizimi
+    renderGrid();
+  }
 
-    // Level adı tasarımı
+  Future<void> initialize() async {
+    camera.viewfinder.position = Vector2(size.x / 2, size.y / 2);
+  }
+
+  Future<void> loadLevelData() async {
+    final String data =
+        await rootBundle.loadString('assets/level_data/level_$level.json');
+    final Map<String, dynamic> jsonData = json.decode(data);
+    grid = List<List<String>>.from(
+      jsonData['grid'].map((row) => List<String>.from(row)),
+    );
+    validWords = List<Word>.from(
+      jsonData['words'].map((w) => Word.fromJson(w)),
+    );
+    levelName = jsonData['name'];
+  }
+
+  void setupUI() {
+    double titleTopPadding = size.y * 0.025;
+    double skorTopPadding = size.y * 0.0325;
+
+    // Bölüm adı bileşeni
     levelTitleComponent = TextComponent(
       text: levelName,
       anchor: Anchor.topCenter,
@@ -52,32 +86,27 @@ class GameField extends FlameGame with DragCallbacks, TapCallbacks {
       ),
       priority: -55,
     );
-    final double bgHeight = levelTitleComponent.position.y +
-        levelTitleComponent.height +
-        titleBottomPadding;
-    // Level adı arkaplan rengi
-    add(RectangleComponent(
-      position: Vector2(0, 0),
-      size: Vector2(size.x, bgHeight),
-      paint: Paint()..color = Colors.blueGrey.shade900,
-      priority: -60,
-    ));
-    add(levelTitleComponent);
 
-    renderGrid();
-  }
+    // Skor gösterge bileşeni
+    scoreManager = ScoreManager(
+      initialPosition: Vector2(size.x - 16, skorTopPadding),
+    );
 
-  Future<void> loadLevelData() async {
-    final String data =
-        await rootBundle.loadString('assets/data/level_$level.json');
-    final Map<String, dynamic> jsonData = json.decode(data);
-    grid = List<List<String>>.from(
-      jsonData['grid'].map((row) => List<String>.from(row)),
-    );
-    validWords = List<Word>.from(
-      jsonData['words'].map((w) => Word.fromJson(w)),
-    );
-    levelName = jsonData['name'];
+    // Üst bölme tasarımı
+    final double levelTitleBgHeight = size.y * 0.1;
+
+    // Ekleme işlemi bloğu
+    addAll([
+      BackgroundComponent(),
+      RectangleComponent(
+        position: Vector2(0, 0),
+        size: Vector2(size.x, levelTitleBgHeight),
+        paint: Paint()..color = Colors.blueGrey.shade900,
+        priority: -60,
+      ),
+      levelTitleComponent,
+      scoreManager,
+    ]);
   }
 
   // Grid Sistemi Genel Tasarımı
@@ -158,6 +187,9 @@ class GameField extends FlameGame with DragCallbacks, TapCallbacks {
     if (tile != null && tile.isBottomRow(grid.length)) {
       tile.select();
       selectedTiles.add(tile);
+      if (kDebugMode) {
+        print("SEÇİM İŞLEMİ BAŞLADIĞI AN 1 KERE DÖNEN NOKTA!");
+      }
     }
   }
 
@@ -172,6 +204,9 @@ class GameField extends FlameGame with DragCallbacks, TapCallbacks {
         currentTile.isNeighbor(nextTile)) {
       nextTile.select();
       selectedTiles.add(nextTile);
+      if (kDebugMode) {
+        print("İLK SEÇİM SONRASI SEÇİLEN SEÇİM SAYISI KADAR ÇALIŞAN NOKTA!");
+      }
     }
   }
 
@@ -189,6 +224,9 @@ class GameField extends FlameGame with DragCallbacks, TapCallbacks {
           return false;
         }
       }
+      if (kDebugMode) {
+        print("SEÇİM İŞLEMİ TAMAMLANDIĞINDA VE KELİME DOĞRUYSA ÇALIŞAN NOKTA!");
+      }
       return true;
     });
 
@@ -197,11 +235,19 @@ class GameField extends FlameGame with DragCallbacks, TapCallbacks {
         grid[tile.row][tile.col] = '';
         tile.removeFromParent();
         tiles.remove(tile);
+        scoreManager.increase(20);
+        if (kDebugMode) {
+          print("DOĞRU SEÇİMDE KELİME HARF İÇERİĞİ KADAR DÖNEN NOKTA!!!");
+        }
       }
       checkAndShiftGridDown();
+      checkRemainingValidWords();
     } else {
       for (var tile in selectedTiles) {
         tile.deselect();
+        if (kDebugMode) {
+          print("YANLIŞ SEÇİMDE SEÇİLEN KUTU HARF İÇERİĞİ KADAR DÖNEN NOKTA!");
+        }
       }
     }
     selectedTiles.clear();
@@ -216,35 +262,70 @@ class GameField extends FlameGame with DragCallbacks, TapCallbacks {
           grid[tile.row][tile.col] = '';
           tile.removeFromParent();
           tiles.remove(tile);
+          scoreManager.decrease(10);
+          if (kDebugMode) {
+            print("HÜCRESEL ÇEKİÇ KULLANIMI SIRASINDA ÇALIŞAN NOKTA!");
+          }
           checkAndShiftGridDown();
+          checkRemainingValidWords();
           break;
 
         case HammerType.fullRow:
           for (int col = 0; col < grid[0].length; col++) {
             grid[tile.row][col] = '';
+            if (kDebugMode) {
+              print(
+                "SATIR ÇEKİCİ KULLANIMI SIRASINDA SÜTUN SAYISI KADAR DÖNEN 1. NOKTA!",
+              );
+            }
           }
           tiles.removeWhere((t) {
             if (t.row == tile.row) {
               t.removeFromParent();
+              if (kDebugMode) {
+                print(
+                  "SATIR ÇEKİCİ KULLANIMI SIRASINDA SÜTUN SAYISI KADAR DÖNEN 2. NOKTA!",
+                );
+              }
               return true;
             }
             return false;
           });
+          scoreManager.decrease(10);
+          if (kDebugMode) {
+            print("SATIR ÇEKİCİ KULLANIMI SIRASINDA 1 KERE ÇALIŞAN NOKTA!");
+          }
           checkAndShiftGridDown();
+          checkRemainingValidWords();
           break;
 
         case HammerType.fullColumn:
           for (int row = 0; row < grid.length; row++) {
             grid[row][tile.col] = '';
+            if (kDebugMode) {
+              print(
+                "SÜTUN ÇEKİCİ KULLANIMI SIRASINDA SATIR SAYISI KADAR DÖNEN 1. NOKTA!",
+              );
+            }
           }
           tiles.removeWhere((t) {
             if (t.col == tile.col) {
               t.removeFromParent();
+              if (kDebugMode) {
+                print(
+                  "SÜTUN ÇEKİCİ KULLANIMI SIRASINDA SATIR SAYISI KADAR DÖNEN 2. NOKTA!",
+                );
+              }
               return true;
             }
             return false;
           });
+          scoreManager.decrease(10);
+          if (kDebugMode) {
+            print("SÜTUN ÇEKİCİ KULLANIMI SIRASINDA 1 KERE ÇALIŞAN NOKTA!");
+          }
           checkAndShiftGridDown();
+          checkRemainingValidWords();
           break;
 
         case HammerType.none:
@@ -260,7 +341,7 @@ class GameField extends FlameGame with DragCallbacks, TapCallbacks {
     final int columns = grid[0].length;
     bool shifted = false;
 
-    // En alttaki satır boş mu kontrol et
+    // En alttaki satır kontrolü
     bool isBottomRowEmpty = true;
     for (int col = 0; col < columns; col++) {
       if (grid[rows - 1][col] != '') {
@@ -282,6 +363,24 @@ class GameField extends FlameGame with DragCallbacks, TapCallbacks {
     if (shifted) {
       checkAndShiftGridDown();
     }
+  }
+
+  void checkRemainingValidWords() {
+    for (final word in validWords) {
+      bool wordAvailable = true;
+      for (final path in word.path) {
+        final row = path[0] + shiftCounter;
+        final col = path[1];
+        if (row >= grid.length || grid[row][col] == '') {
+          wordAvailable = false;
+          break;
+        }
+      }
+      if (wordAvailable) {
+        return;
+      }
+    }
+    onLevelComplete();
   }
 }
 
@@ -382,5 +481,57 @@ class BackgroundComponent extends Component with HasGameRef<GameField> {
       Rect.fromLTWH(0, 0, game.size.x, game.size.y),
       Paint()..color = const Color(0xFF222831),
     );
+  }
+}
+
+// Skor Gösterge İşlemleri ve Tasarımı
+class ScoreManager extends Component with HasGameRef<GameField> {
+  final Vector2? initialPosition;
+  ScoreManager({this.initialPosition});
+
+  int _score = 0;
+  late TextComponent _scoreText;
+
+  @override
+  Future<void> onLoad() async {
+    _score = gameRef.earnedPoint;
+
+    _scoreText = TextComponent(
+      text: 'Skor: $_score',
+      anchor: Anchor.topRight,
+      position: initialPosition,
+      textRenderer: TextPaint(
+        style: TextStyle(
+          fontSize: game.size.x * 0.05,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      priority: -55,
+    );
+    add(_scoreText);
+  }
+
+  void increase(int value) {
+    _score += value;
+    gameRef.earnedPoint = _score;
+    _updateText();
+  }
+
+  void decrease(int value) {
+    _score -= value;
+    gameRef.earnedPoint = _score;
+    _updateText();
+  }
+
+  void reset() {
+    _score = 0;
+    _updateText();
+  }
+
+  int get score => _score;
+
+  void _updateText() {
+    _scoreText.text = 'Skor: $_score';
   }
 }

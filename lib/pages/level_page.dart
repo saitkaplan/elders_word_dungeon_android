@@ -1,7 +1,8 @@
 import 'package:elders_word_dungeon_android/backops/google_ads.dart';
 import 'package:elders_word_dungeon_android/pages/game_page.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class LevelPage extends StatefulWidget {
@@ -15,6 +16,9 @@ class _LevelPageState extends State<LevelPage> {
   late GoogleAds _googleAds;
   final ScrollController _scrollController = ScrollController();
 
+  int earnedPoint = 0;
+  int levelButtonCount = 10;
+
   @override
   void initState() {
     _googleAds = GoogleAds();
@@ -22,7 +26,7 @@ class _LevelPageState extends State<LevelPage> {
     loadAdData();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        _scrollController.jumpTo(_scrollController.position.minScrollExtent);
       }
     });
   }
@@ -41,29 +45,45 @@ class _LevelPageState extends State<LevelPage> {
     List<Offset> positions = [
       // Buton Konumları (x, y)
       // En Üst Level 1, en alt ise son level.
-      const Offset(85, 900), // 1
-      const Offset(160, 800), // 2
-      const Offset(110, 700), // 3
-      const Offset(270, 600), // 4
-      const Offset(75, 500), // 5
-      const Offset(205, 400), // 6
-      const Offset(145, 300), // 7
-      const Offset(30, 200), // 8
-      const Offset(240, 100), // 9
+      // Genişlik çarpanı 0.7'i geçmemeli!
+      Offset(screenWidth * 0.31, screenHeight * 0.05), // 1
+      Offset(screenWidth * 0.22, screenHeight * 0.15), // 2
+      Offset(screenWidth * 0.47, screenHeight * 0.25), // 3
+      Offset(screenWidth * 0.63, screenHeight * 0.35), // 4
+      Offset(screenWidth * 0.46, screenHeight * 0.45), // 5
+      Offset(screenWidth * 0.28, screenHeight * 0.55), // 6
+      Offset(screenWidth * 0.42, screenHeight * 0.65), // 7
+      Offset(screenWidth * 0.56, screenHeight * 0.75), // 8
+      Offset(screenWidth * 0.34, screenHeight * 0.85), // 9
     ];
-
+    setState(() {
+      levelButtonCount = (positions.length + 1);
+    });
     return List.generate(positions.length, (index) {
       final levelNumber = index + 1;
       return Positioned(
         left: positions[index].dx,
         top: positions[index].dy,
         child: InkWell(
-          onTap: () {
-            Navigator.of(context).push(
+          onTap: () async {
+            final result = await Navigator.of(context).push<int>(
               MaterialPageRoute(
-                builder: (_) => GamePage(level: levelNumber),
+                builder: (_) => GamePage(
+                  level: levelNumber,
+                  earnedPoint: earnedPoint,
+                ),
               ),
             );
+            if (result != null) {
+              setState(() {
+                earnedPoint = result;
+              });
+              if (kDebugMode) {
+                print(
+                  'BÖLÜM TAMAMLANDI VE SKOR DEĞERİ OLAN $earnedPoint SAYISI GÜNCELLENDİ!',
+                );
+              }
+            }
           },
           child: Container(
             width: screenWidth * 0.25,
@@ -92,7 +112,7 @@ class _LevelPageState extends State<LevelPage> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    // final double screenHeight = MediaQuery.of(context).size.height;
+    final double screenHeight = MediaQuery.of(context).size.height;
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     return Scaffold(
       backgroundColor: Colors.blueGrey.shade900,
@@ -128,13 +148,13 @@ class _LevelPageState extends State<LevelPage> {
               ],
             ),
           ),
-          Expanded(
+          Flexible(
             child: Stack(
               children: [
                 SingleChildScrollView(
                   controller: _scrollController,
                   child: SizedBox(
-                    height: (50 * 10) * 2,
+                    height: ((screenHeight * 0.05) * levelButtonCount) * 2,
                     child: Stack(
                       children: _buildLevelButtons(),
                     ),
