@@ -11,7 +11,7 @@ Future<void> main() async {
   await dotenv.load(fileName: ".env");
   // Reklam işlemlerinin uygulamaya yüklenmesi
   MobileAds.instance.initialize();
-  // Durum çubuğunu şeffaf ve beyaz temaya dönüşmesi
+  // Durum çubuğunu verilerinin güncellenmesi
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
       statusBarColor: Colors.blueGrey.shade900,

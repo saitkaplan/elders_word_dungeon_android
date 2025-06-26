@@ -36,3 +36,5 @@ flutter:
     - assets/level_data/level_7.json
     - assets/level_data/level_8.json
     - assets/level_data/level_9.json
+    - assets/level_data/level_10.json
+    - assets/images/logos/ers_logo.png

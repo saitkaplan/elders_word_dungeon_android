@@ -55,6 +55,7 @@ class _LevelPageState extends State<LevelPage> {
       Offset(screenWidth * 0.42, screenHeight * 0.65), // 7
       Offset(screenWidth * 0.56, screenHeight * 0.75), // 8
       Offset(screenWidth * 0.34, screenHeight * 0.85), // 9
+      Offset(screenWidth * 0.14, screenHeight * 0.95), // 10
     ];
     setState(() {
       levelButtonCount = (positions.length + 1);
@@ -123,27 +124,46 @@ class _LevelPageState extends State<LevelPage> {
               top: statusBarHeight,
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SizedBox(width: screenWidth * 0.05),
-                IconButton(
-                  icon: Icon(
-                    CupertinoIcons.arrow_left_circle_fill,
-                    size: screenWidth * 0.09,
-                  ),
-                  color: Colors.white,
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
+                Row(
+                  children: [
+                    SizedBox(width: screenWidth * 0.05),
+                    IconButton(
+                      icon: Icon(
+                        CupertinoIcons.arrow_left_circle_fill,
+                        size: screenWidth * 0.09,
+                      ),
+                      color: Colors.white,
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    SizedBox(width: screenWidth * 0.02),
+                    Text(
+                      'Bölüm Seçimi',
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.05,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                      textScaler: const TextScaler.linear(1),
+                    ),
+                  ],
                 ),
-                SizedBox(width: screenWidth * 0.02),
-                Text(
-                  'Bölüm Seçimi',
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.05,
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
-                  textScaler: const TextScaler.linear(1),
+                Row(
+                  children: [
+                    Text(
+                      "Güncel Skor: $earnedPoint",
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.035,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                      textScaler: const TextScaler.linear(1),
+                    ),
+                    SizedBox(width: screenWidth * 0.05),
+                  ],
                 ),
               ],
             ),
