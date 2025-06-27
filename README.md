@@ -1,25 +1,49 @@
-# Elder's Word Dungeon: Optimized for Android
+# 🧩 Elder's Word Dungeon (Android Optimized Version)
 
-## 🚀 Project Overview
+> A fast, fluid and immersive competitive word puzzle experience — built with Flutter & Flutter Flame.
 
-**Elder's Word Dungeon** is a **competitive word puzzle game** that combines intellect and vocabulary. This version, specifically optimized for the Android platform, aims to provide users with a fluid, fast, and immersive gaming experience.
+![banner](assetsGit/images/banner.png)
 
-## ✨ Features
+---
 
-* **Unique Word Puzzles:** Constantly new challenges with uniquely designed levels.
-* **Competitive Mode:** Real-time word duels with friends or other players.
-* **Extensive Vocabulary:** Explore and improve your Turkish vocabulary (or specify your game's language).
-* **User-Friendly Interface:** Smooth animations and intuitive controls for easy gameplay.
-* **Android Optimization:** Platform-specific performance enhancements and a fluid user experience.
-
-## ⚖️ License
+## ⚖️ License & Usage Terms
 
 This project is licensed under the [MIT License](./LICENSE).
 
-Please respect the license terms.  
-Although the code is open to use, **the author must always be credited**, and you are **not allowed to claim ownership** or remove the copyright.
+> **All rights reserved by Sait Kaplan.**  
+> Redistribution and reuse are permitted under the terms of the license, but:
+>
+> - ❌ You may **not claim authorship** of this work.
+> - ❌ You may **not remove license or credit notices**.
+> - ❌ You may **not use it for commercial purposes** without permission.
+>
+> ✅ Respect the license and **credit the original author**.
 
-Developed by **Sait Kaplan**
+---
+
+## 🚀 Overview
+
+**Elder's Word Dungeon** is a **competitive word puzzle game** that blends quick thinking and vocabulary mastery.
+
+This repository contains the **Android-optimized version**.  
+It is designed to run smoothly on a wide range of Android devices, offering:
+
+- 🧠 **Unique and hard word challenges**
+- 🎮 **Competitive real-time ranking system**
+- 🇹🇷 **Focus on Turkish vocabulary**
+- 📱 **Platform-specific performance enhancements**
+
+---
+
+## 🖼️ Screenshots
+
+<p float="left">
+  <img src="assetsGit/screenshots/screen1.png" width="33%" />
+  <img src="assetsGit/screenshots/screen2.png" width="33%" />
+  <img src="assetsGit/screenshots/screen3.png" width="33%" />
+</p>
+
+---
 
 ## 🛠️ Setup and Running (Android)
 
@@ -50,20 +74,28 @@ Follow these steps to set up and run this project on your local machine:
 
 > *Note: If you want to support the project with a branch, please read the IMPORTANT WARNING in the .gitignore file.*
 
+---
+
 ## 🤝 Contributors and Support
 
-* **Developer:** [Sait Kaplan](https://www.linkedin.com/in/saitkaplan/)
-* **Support & Contributions:** [Kemal Sait Eser](https://www.linkedin.com/in/kemal-said-eser/)
+* **Developer:** [Sait Kaplan](https://www.linkedin.com/in/saitkaplan)
+* **Support & Contributions:** [Kemal Sait Eser](https://www.linkedin.com/in/kemal-said-eser)
 * **Main Company:** [Elder Root Software](https://play.google.com/store/apps/dev?id=7541562456635286242)
+
+---
 
 ## 📌 Related Projects
 
-* **Elder's Word Dungeon (iOS Version):** You can find the iOS-optimized version of this project [here](https://github.com/saitkaplan).
+* **Elder's Word Dungeon (iOS Optimized Version):** You can find the iOS optimized version of this project [here](https://github.com/saitkaplan).
+
+---
 
 ## 📚 Resources
 
 For more information on Flutter development:
 
-* [Flutter Documentation](https://docs.flutter.dev/)
+* [Flutter Documentation](https://docs.flutter.dev)
 * [Flutter Codelabs](https://docs.flutter.dev/codelabs)
 * [Flutter Cookbook](https://docs.flutter.dev/cookbook)
+* [Flutter Flame](https://flame-engine.org)
+* [Flame Documentation](https://docs.flame-engine.org/latest)
