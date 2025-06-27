@@ -12,6 +12,15 @@
 * **User-Friendly Interface:** Smooth animations and intuitive controls for easy gameplay.
 * **Android Optimization:** Platform-specific performance enhancements and a fluid user experience.
 
+## ⚖️ License
+
+This project is licensed under the [MIT License](./LICENSE).
+
+Please respect the license terms.  
+Although the code is open to use, **the author must always be credited**, and you are **not allowed to claim ownership** or remove the copyright.
+
+Developed by **Sait Kaplan**
+
 ## 🛠️ Setup and Running (Android)
 
 Follow these steps to set up and run this project on your local machine:
