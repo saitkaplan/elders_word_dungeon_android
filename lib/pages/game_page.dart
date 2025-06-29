@@ -6,6 +6,15 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
+/// ---------------------------------------------------------------------------
+/// Elder's Word Dungeon (Android Version)
+/// Copyright (c) 2025 Sait Kaplan
+/// Licensed under the MIT License. See LICENSE file in the root of the project.
+///
+/// You are NOT allowed to claim authorship, remove this notice, or use this
+/// file in commercial projects without explicit permission from the author.
+/// ---------------------------------------------------------------------------
+
 class GamePage extends StatefulWidget {
   final int level;
   final int earnedPoint;

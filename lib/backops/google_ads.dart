@@ -2,6 +2,15 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/foundation.dart';
 
+/// ---------------------------------------------------------------------------
+/// Elder's Word Dungeon (Android Version)
+/// Copyright (c) 2025 Sait Kaplan
+/// Licensed under the MIT License. See LICENSE file in the root of the project.
+///
+/// You are NOT allowed to claim authorship, remove this notice, or use this
+/// file in commercial projects without explicit permission from the author.
+/// ---------------------------------------------------------------------------
+
 typedef VoidCallback = void Function();
 
 class GoogleAds with ChangeNotifier {

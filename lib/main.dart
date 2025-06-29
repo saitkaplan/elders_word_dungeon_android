@@ -4,6 +4,15 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
+/// ---------------------------------------------------------------------------
+/// Elder's Word Dungeon (Android Version)
+/// Copyright (c) 2025 Sait Kaplan
+/// Licensed under the MIT License. See LICENSE file in the root of the project.
+///
+/// You are NOT allowed to claim authorship, remove this notice, or use this
+/// file in commercial projects without explicit permission from the author.
+/// ---------------------------------------------------------------------------
+
 Future<void> main() async {
   // Temel yükleme ve ayarların alınması
   WidgetsFlutterBinding.ensureInitialized();

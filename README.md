@@ -38,9 +38,9 @@ It is designed to run smoothly on a wide range of Android devices, offering:
 ## 🖼️ Screenshots
 
 <p float="left">
-  <img src="assetsGit/screenshots/screen1.png" width="33%" />
-  <img src="assetsGit/screenshots/screen2.png" width="33%" />
-  <img src="assetsGit/screenshots/screen3.png" width="33%" />
+  <img src="assetsGit/screenshots/screen1.png" width="32%" />
+  <img src="assetsGit/screenshots/screen2.png" width="32%" />
+  <img src="assetsGit/screenshots/screen3.png" width="32%" />
 </p>
 
 ---
